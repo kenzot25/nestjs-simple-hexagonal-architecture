@@ -11,7 +11,7 @@ import { DeleteUserUseCase } from './application/use-cases/delete-user.use-case'
 import { GetUserUseCase } from './application/use-cases/get-user.use-case';
 import { ListUserUseCase } from './application/use-cases/list-user.use-case';
 import { UpdateUserUseCase } from './application/use-cases/update-user.use-case';
-import { InMemoryUserRepository } from './infrasctructure/adapters/in-memory-user.repository';
+import { InMemoryUserRepository } from './infrastructure/adapters/in-memory-user.repository';
 import { UserController } from './presentation/user.controller';
 
 @Module({
