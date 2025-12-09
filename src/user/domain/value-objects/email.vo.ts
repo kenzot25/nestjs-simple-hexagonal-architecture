@@ -3,7 +3,7 @@ export class Email {
 
   constructor(email: string) {
     if (!this.isValid(email)) {
-      throw Error('Invalid email');
+      throw new Error('Invalid email');
     }
 
     this.value = email;

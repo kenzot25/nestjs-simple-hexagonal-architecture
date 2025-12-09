@@ -3,11 +3,7 @@ import {
   USER_REPOSITORY,
   UserRepositoryPort,
 } from '../ports/user.repository.port';
-
-export interface UpdateUserDto {
-  name?: string;
-  email?: string;
-}
+import { UpdateUserDto } from 'src/user/presentation/dtos/update-user.dto';
 
 @Injectable()
 export class UpdateUserUseCase {

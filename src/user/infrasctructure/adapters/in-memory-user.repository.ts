@@ -4,7 +4,7 @@ import { User } from 'src/user/domain/entities/user.entity';
 
 @Injectable()
 export class InMemoryUserRepository implements UserRepositoryPort {
-  private users: Map<string, User> = new Map();
+  private readonly users: Map<string, User> = new Map();
 
   save(user: User): User {
     this.users.set(user.getId().getValue(), user);

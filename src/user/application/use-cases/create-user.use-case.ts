@@ -4,11 +4,7 @@ import {
   USER_REPOSITORY,
   UserRepositoryPort,
 } from '../ports/user.repository.port';
-
-export interface CreateUserDto {
-  name: string;
-  email: string;
-}
+import { CreateUserDto } from 'src/user/presentation/dtos/create-user.dto';
 
 @Injectable()
 export class CreateUserUseCase {
