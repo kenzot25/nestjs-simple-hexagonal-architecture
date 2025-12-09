@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ApiBody,
   ApiOperation,
@@ -16,24 +17,21 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateUserUseCase } from '../application/use-cases/create-user.use-case';
-import { DeleteUserUseCase } from '../application/use-cases/delete-user.use-case';
-import { GetUserUseCase } from '../application/use-cases/get-user.use-case';
-import { ListUserUseCase } from '../application/use-cases/list-user.use-case';
-import { UpdateUserUseCase } from '../application/use-cases/update-user.use-case';
+import { CreateUserCommand } from '../application/commands/create-user.command';
+import { UpdateUserCommand } from '../application/commands/update-user.command';
+import { GetUserQuery } from '../application/queries/get-user.query';
+import { ListUsersQuery } from '../application/queries/list-users.query';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { UserResponseDto } from './dtos/user-response.dto';
+import { DeleteUserCommand } from '../application/commands/delete-user.command';
 
 @ApiTags('users')
 @Controller('users')
 export class UserController {
   constructor(
-    private readonly createUserUseCase: CreateUserUseCase,
-    private readonly getUserUseCase: GetUserUseCase,
-    private readonly listUserUseCase: ListUserUseCase,
-    private readonly deleteUserUseCase: DeleteUserUseCase,
-    private readonly updateUserUseCase: UpdateUserUseCase,
+    private readonly commandBus: CommandBus, // Only 1 dependency for commands!
+    private readonly queryBus: QueryBus, // Only 1 dependency for queries!
   ) {}
 
   @Post()
@@ -45,7 +43,8 @@ export class UserController {
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   async createUser(@Body() dto: CreateUserDto) {
-    const user = await this.createUserUseCase.execute(dto);
+    const command = new CreateUserCommand(dto.name, dto.email);
+    const user = await this.commandBus.execute(command);
     return UserResponseDto.fromDomain(user);
   }
 
@@ -59,7 +58,8 @@ export class UserController {
   })
   @ApiResponse({ status: 404, description: 'User not found' })
   async getUser(@Param('id') id: string) {
-    const user = await this.getUserUseCase.execute(id);
+    const query = new GetUserQuery(id);
+    const user = await this.queryBus.execute(query);
     return UserResponseDto.fromDomain(user);
   }
 
@@ -71,7 +71,8 @@ export class UserController {
     type: [UserResponseDto],
   })
   async listUser() {
-    const users = await this.listUserUseCase.execute();
+    const query = new ListUsersQuery();
+    const users = await this.queryBus.execute(query);
     return users.map((user) => UserResponseDto.fromDomain(user));
   }
 
@@ -86,7 +87,8 @@ export class UserController {
   })
   @ApiResponse({ status: 404, description: 'User not found' })
   async updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
-    const user = await this.updateUserUseCase.execute(id, dto);
+    const command = new UpdateUserCommand(id, dto.name, dto.email);
+    const user = await this.commandBus.execute(command);
     return UserResponseDto.fromDomain(user);
   }
 
@@ -97,6 +99,7 @@ export class UserController {
   @ApiResponse({ status: 204, description: 'User deleted successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async deleteUser(@Param('id') id: string) {
-    await this.deleteUserUseCase.execute(id);
+    const command = new DeleteUserCommand(id);
+    await this.commandBus.execute(command);
   }
 }
